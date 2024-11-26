@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app: prometheus
+  name: prometheus
+  namespace: prometheus
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: prometheus
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - args:
+        - --config.file=/etc/prometheus/config/prometheus.yml
+        - --storage.tsdb.path=/prometheus
+        - --storage.tsdb.retention.time=28d
+        - --enable-feature=memory-snapshot-on-shutdown
+        - --enable-feature=auto-reload-config
+        - --storage.tsdb.min-block-duration=30m
+        image: registry.redhat.io/openshift4/ose-prometheus:latest
+        imagePullPolicy: IfNotPresent
+        name: prometheus
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/prometheus/config/prometheus.yml
+          name: prometheus-config
+          subPath: prometheus.yml
+        - mountPath: /etc/prometheus/configmaps/prometheus-service-ca
+          name: prometheus-service-ca
+        - mountPath: /etc/prometheus/secrets/prometheus-svc-tls
+          name: prometheus-svc-tls
+          readOnly: true
+        - mountPath: /prometheus
+          name: prometheus
+        - mountPath: /etc/prometheus/alerting_rules/general-alerts.yaml
+          name: general-alerts
+          subPath: general-alerts.yaml
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccountName: prometheus
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: prometheus-config
+        name: prometheus-config
+      - configMap:
+          defaultMode: 420
+          name: prometheus-service-ca
+        name: prometheus-service-ca
+      - name: prometheus-svc-tls
+        secret:
+          defaultMode: 420
+          secretName: prometheus-svc-tls
+      - name: prometheus
+        persistentVolumeClaim:
+          claimName: prometheus
+      - configMap:
+          defaultMode: 420
+          name: general-alerts
+        name: general-alerts

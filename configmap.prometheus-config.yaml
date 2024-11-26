@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 30s
+      scrape_timeout: 10s
+      evaluation_interval: 30s
+    alerting:
+      alertmanagers:
+      - path_prefix: /
+        scheme: http
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        api_version: v2
+        tls_config:
+          insecure_skip_verify: true
+          server_name: alertmanager.prometheus.svc.cluster.local
+          ca_file: /etc/prometheus/configmaps/prometheus-service-ca/service-ca.crt
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - prometheus
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_container_port_number]
+          separator: ;
+          regex: 9093
+          replacement: $1
+          action: keep
+    rule_files:
+    - /etc/prometheus/alerting_rules/*yaml
+    scrape_configs:
+    - job_name: prometheus
+      static_configs:
+        - targets:
+            - localhost:9090
+    - job_name: cluster-monitoring
+      honor_labels: true
+      params:
+        match[]:
+        - '{job!=""}'
+      scrape_interval: 30s
+      scrape_timeout: 30s
+      metrics_path: /federate
+      scheme: https
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - openshift-monitoring
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tls_config:
+        ca_file: /etc/prometheus/configmaps/prometheus-service-ca/service-ca.crt
+        server_name: prometheus-k8s.openshift-monitoring.svc.cluster.local
+        insecure_skip_verify: false
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        separator: ;
+        regex: 9091
+        replacement: $1
+        action: keep
+      - source_labels: [__meta_kubernetes_endpoints_name]
+        separator: ;
+        regex: thanos-querier
+        replacement: $1
+        action: drop
