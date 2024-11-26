@@ -8,7 +8,7 @@ data:
     global:
       scrape_interval: 30s
       scrape_timeout: 10s
-      evaluation_interval: 30s
+      evaluation_interval: 90s
     alerting:
       alertmanagers:
       - path_prefix: /
