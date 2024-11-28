@@ -14,3 +14,14 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - monitoring.coreos.com
+  verbs:
+  - create
+  - get 
+  - update
+  resources:
+  - prometheuses/api
+  resourceNames:
+  - k8s
+
