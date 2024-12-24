@@ -80,7 +80,7 @@ data:
       - role: endpoints
         namespaces:
           names:
-          - openshift-monitoring
+          - openshift-user-workload-monitoring
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       tls_config:
         ca_file: /etc/prometheus/configmaps/prometheus-service-ca/service-ca.crt

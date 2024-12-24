@@ -6,7 +6,6 @@ metadata:
   name: prometheus
   namespace: prometheus
 spec:
-  host: prometheus.apps.rosa.prometheus.jgsh.p3.openshiftapps.com
   port:
     targetPort: 9090-9090
   tls:
