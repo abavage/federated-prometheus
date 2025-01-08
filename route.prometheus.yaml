@@ -7,10 +7,10 @@ metadata:
   namespace: prometheus
 spec:
   port:
-    targetPort: 9090-9090
+    targetPort: prometheus
   tls:
     insecureEdgeTerminationPolicy: Redirect
-    termination: edge
+    termination: reencrypt
   to:
     kind: Service
     name: prometheus
