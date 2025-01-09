@@ -68,6 +68,26 @@ spec:
         image: registry.redhat.io/openshift4/ose-prometheus-alertmanager-rhel9:latest
         imagePullPolicy: Always
         name: alertmanager
+        readinessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 15
+          httpGet:
+            path: /-/ready
+            port: 9093
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 15
+          httpGet:
+            path: /-/healthy
+            port: 9093
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
         ports:
         - containerPort: 9093
           name: web
