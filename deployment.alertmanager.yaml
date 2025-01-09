@@ -78,6 +78,8 @@ spec:
         volumeMounts:
         - mountPath: /alertmanager
           name: alertmanager
+        - mountPath: /etc/tls/private
+          name: alertmanager-svc-tls
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
