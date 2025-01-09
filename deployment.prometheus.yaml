@@ -29,7 +29,7 @@ spec:
         - --https-address=:8443
         - --provider=openshift
         - --openshift-service-account=prometheus
-        - '--openshift-sar={"namespace":"prometheuss","resource":"deployment","resourceName":"prometheus","verb":"get"}'
+        - '--openshift-sar={"namespace":"prometheus","resource":"deployment","resourceName":"prometheus","verb":"get"}'
         #- '--openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get"}}'
         - --upstream=http://localhost:9090
         - --tls-cert=/etc/tls/private/tls.crt
@@ -63,9 +63,6 @@ spec:
         # this secret is created from the prometheus service and annotation 
         - mountPath: /etc/tls/private
           name: prometheus-svc-tls
-        # this comes from the configMap with the inject label
-        - mountPath: /etc/pki/ca-trust/extracted/pem
-          name: prometheus-trusted-ca-bundle
       - args:
         - --config.file=/etc/prometheus/config/prometheus.yml
         - --storage.tsdb.path=/prometheus
@@ -119,11 +116,3 @@ spec:
           defaultMode: 420
           name: general-alerts
         name: general-alerts
-      - configMap:
-          defaultMode: 420
-          items:
-          - key: ca-bundle.crt
-            path: tls-ca-bundle.pem
-          name: prometheus-trusted-ca-bundle
-          optional: true
-        name: prometheus-trusted-ca-bundle

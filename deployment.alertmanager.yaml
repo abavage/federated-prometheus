@@ -25,6 +25,44 @@ spec:
     spec:
       containers:
       - args:
+        - --https-address=:8443
+        - --provider=openshift
+        - --openshift-service-account=alertmanager
+        - '--openshift-sar={"namespace":"prometheus","resource":"deployment","resourceName":"alertmanager","verb":"get"}'
+        #- '--openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get"}}'
+        - --upstream=http://localhost:9093
+        - --tls-cert=/etc/tls/private/tls.crt
+        - --tls-key=/etc/tls/private/tls.key
+        - --cookie-secret=SECRET
+        - --cookie-expire=2h
+        - --pass-basic-auth=false
+        image: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:v4.17.0
+        imagePullPolicy: IfNotPresent
+        name: alertmanager-oauth-proxy
+        ports:
+        - containerPort: 8443
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 20
+          httpGet:
+            path: /oauth/healthz
+            port: 8443
+            scheme: HTTPS
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 10m
+            memory: 20Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        # this secret is created from the prometheus service and annotation 
+        - mountPath: /etc/tls/private
+          name: alertmanager-svc-tls
+      - args:
         - --storage.path=/alertmanager
         - --web.listen-address=:9093
         image: registry.redhat.io/openshift4/ose-prometheus-alertmanager-rhel9:latest
@@ -50,3 +88,7 @@ spec:
       - name: alertmanager
         persistentVolumeClaim:
           claimName: alertmanager
+      - name: alertmanager-svc-tls
+        secret:
+          defaultMode: 420
+          secretName: alertmanager-svc-tls

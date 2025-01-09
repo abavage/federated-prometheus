@@ -7,10 +7,10 @@ metadata:
   namespace: prometheus
 spec:
   port:
-    targetPort: web
+    targetPort: alertmanager
   tls:
     insecureEdgeTerminationPolicy: Redirect
-    termination: edge
+    termination: reencrypt
   to:
     kind: Service
     name: alertmanager
