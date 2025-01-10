@@ -20,9 +20,8 @@ data:
       rules:
       - alert: vector
         expr: vector(1)
-        for: 10m
+        for: 1m
         annotations:
-          message: alerting is enabled
+          message: "alerting is enabled on {{ $externalLabels.clustername }}"
         labels:
           severity: critical
-          clustername: prom
