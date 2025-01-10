@@ -11,6 +11,7 @@ data:
       evaluation_interval: 90s
       external_labels:
         clustername: the-cluster
+        region: ap-southeast-2
     alerting:
       alertmanagers:
       - path_prefix: /
@@ -40,7 +41,7 @@ data:
         - targets:
             - localhost:9090
     - job_name: cluster-openshift-monitoring
-      #honor_labels: true
+      honor_labels: true
       params:
         match[]:
         - '{job!=""}'
@@ -70,7 +71,7 @@ data:
         replacement: $1
         action: drop
     - job_name: cluster-openshift-user-workload-monitoring
-      #honor_labels: true
+      honor_labels: true
       params:
         match[]:
         - '{job!=""}'

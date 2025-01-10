@@ -22,6 +22,6 @@ data:
         expr: vector(1)
         for: 1m
         annotations:
-          message: "alerting is enabled on {{ $externalLabels.clustername }}"
+          message: "alerting is enabled on {{ $externalLabels.clustername | toUpper }}"
         labels:
           severity: critical
