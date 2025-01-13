@@ -33,6 +33,10 @@ data:
           regex: 9093
           replacement: $1
           action: keep
+      alert_relabel_configs:
+      - source: [prometheus_replica]
+        regex: prometheus-k8s-1
+        action: drop
     rule_files:
     - /etc/prometheus/alerting_rules/*yaml
     scrape_configs:
